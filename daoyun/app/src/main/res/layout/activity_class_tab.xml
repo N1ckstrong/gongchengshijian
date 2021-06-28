@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.daoyun.ClassTabActivity">
+    tools:context="com.example.daoyun.ClassTabActivity"
+    >
     <!--内容-->
     <RelativeLayout
         android:id="@+id/container_class_fragment"

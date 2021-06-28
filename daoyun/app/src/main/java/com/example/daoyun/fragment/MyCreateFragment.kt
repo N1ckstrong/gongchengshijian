@@ -1,5 +1,7 @@
 package com.example.daoyun.fragment
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,19 +9,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
+import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.daoyun.ClassTabActivity
-import com.example.daoyun.Course
-import com.example.daoyun.R
+import com.example.daoyun.*
 import com.example.daoyun.adapter.CourseAdapter
+import com.example.daoyun.adapter.CoursesAdapter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
@@ -33,14 +38,17 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class MyCreateFragment : Fragment() {
-    var courseList: List<Course> = ArrayList<Course>()
+    private var courseList: MutableList <Course> = ArrayList<Course>()
     private val myJoinNum = 0
-    var adapter: CourseAdapter? = null
+    //var adapter: CourseAdapter? = null
     var listView: ListView? = null
     var progressDialog: ProgressBar? = null
     private lateinit var jwtToken:String
+    private lateinit var retmsg:String
     private var param1: String? = null
     private var param2: String? = null
+    private var debugmsg:String?=null
+    private lateinit var anytst:Any
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,43 +69,80 @@ class MyCreateFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         progressDialog = ProgressBar(context)
+        val userData= activity?.getSharedPreferences("userData", Context.MODE_PRIVATE)
+        jwtToken= userData?.getString("jwtToken", "error").toString()
 
-
-
-        adapter = CourseAdapter(context!!, R.layout.course_item, courseList, 2)
+        getCourses()
+        //Toast.makeText(activity,"1debugmsg\n$debugmsg",Toast.LENGTH_SHORT).show()
+        val st=ArrayList<Student>()
+        st.add(Student("htq","htq","czb",1))
+        val tk=ArrayList<Task>()
+        val checkins=ArrayList<Checkin>()
+        val cs=Course(1,"工程实践","1", Teacher("czb","czb"),st,tk,checkins)
+        courseList.add(cs)
+        Toast.makeText(activity,"cl.size=$cs",Toast.LENGTH_SHORT).show()
+        val adapter = CoursesAdapter(context!!, R.layout.course_item, courseList)
         listView = activity!!.findViewById(R.id.list_view1)
         listView?.adapter = adapter
         listView?.onItemClickListener = OnItemClickListener { _, _, position, _ ->
-            val course: Course = courseList[position]
+            val course = courseList[position]
             val intent = Intent(context, ClassTabActivity::class.java)
-            intent.putExtra("courseName", course.getCourseName())
-            intent.putExtra("classId", course.getClassId())
+            intent.putExtra("courseName", course.courseName)
+            intent.putExtra("classId", course.courseExId)
             intent.putExtra("enterType", "create")
             startActivity(intent)
+
         }
+    }
+
+    private fun initCourses(){
+        val userData = activity?.getSharedPreferences("userData", Context.MODE_PRIVATE)
+        val className= userData?.getString("class","error").toString()
+        val gradeClass= userData?.getString("grade","error").toString()
+        val classId= userData?.getString("courseExId","error").toString()
+        //val course = Course(R.drawable.course_img_1, className, "", gradeClass, classId)
+        //courseList.add(course)
     }
 
     private fun getCourses(){
         thread {
             try {
-                val json = JSONObject()
-                    .put("role", "student")
-                val stringBody =json.toString().toRequestBody("application/json;charset=utf-8".toMediaType())
-                val client=OkHttpClient()
-                val request=Request.Builder()
-                    .url("https://gcsj.lidotcircle.ltd/apis/course/page")
-                    .get ()
+                val url = HttpUrl.Builder()
+                    .scheme("https")
+                    .host("gcsj.lidotcircle.ltd")
+                    .addPathSegment("apis")
+                    .addPathSegment("course")
+                    .addPathSegment("page")
+                    .addQueryParameter("role", "teacher")
+                    .build()
+                val client= OkHttpClient()
+                val request= Request.Builder()
+                    .url(url)
+                    .header("Authorization",jwtToken)
+                    .get()
                     .build()
                 val response=client.newCall(request).execute()
                 val responseData=response.body?.string()
+                debugmsg=responseData.toString()
+                anytst=JSONObject(responseData)?.getJSONArray("pairs")
+
+                parseJSONWithGSON(anytst.toString())
             }catch (e: Exception){
-                Log.e("TAG", Log.getStackTraceString(e));
+                Log.e("TAG", Log.getStackTraceString(e))
             }
-        }
+        }.join()
+    }
+
+    private fun parseJSONWithGSON(jsonData:String){
+        val gson= Gson()
+        val typeOf=object: TypeToken<List<Course>>() {}.type
+        val csList=gson.fromJson<MutableList<Course>>(jsonData,typeOf)
+        courseList=csList
     }
 
     override fun onResume() {
         super.onResume()
+        initCourses()
     }
 
     companion object {

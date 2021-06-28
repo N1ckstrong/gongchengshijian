@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import com.example.daoyun.R
 
 // TODO: Rename parameter arguments, choose names that match
@@ -35,6 +36,8 @@ class ActivityFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        val backBtn: Button = activity!!.findViewById(R.id.toolbar_left_btn)
+        backBtn?.setOnClickListener(View.OnClickListener { activity?.finish() })
         return inflater.inflate(R.layout.fragment_activity, container, false)
     }
 

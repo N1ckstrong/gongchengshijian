@@ -4,4 +4,6 @@
         android:title="创建班课"/>
     <item android:id="@+id/joinClass"
         android:title="使用班课号加入班课"/>
+    <item android:id="@+id/refresh"
+        android:title="刷新"/>
 </menu>

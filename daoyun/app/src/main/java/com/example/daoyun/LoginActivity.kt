@@ -63,9 +63,9 @@ class LoginActivity : AppCompatActivity() {
             else{
                 login(binding.etLoginUsername.text.toString(),binding.etLoginPwd.text.toString())
                 getJWT(token)
-                Toast.makeText(this,"$token\n@@@@@\n$jwtToken",Toast.LENGTH_LONG).show()
+                //Toast.makeText(this,"token\n$token\njwt\n$jwtToken",Toast.LENGTH_LONG).show()
                 if(token!=null){
-                    Toast.makeText(this, "登陆成功！", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "登陆成功！", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, MainActivity::class.java))
                 }
                 else

@@ -2,13 +2,16 @@ package com.example.daoyun
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.daoyun.databinding.ActivityClassTabBinding
 import com.example.daoyun.fragment.*
 
 class ClassTabActivity : AppCompatActivity(), View.OnClickListener {
+    private lateinit var binding: ActivityClassTabBinding
     private var mMenuRes: LinearLayout? = null
     private var mMenuMember: LinearLayout? = null
     private var mMenuActivity: LinearLayout? = null
@@ -26,12 +29,14 @@ class ClassTabActivity : AppCompatActivity(), View.OnClickListener {
     private var mMoreFragment: MoreFragment = MoreFragment()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_class_tab)
+        binding= ActivityClassTabBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         val intent = intent
         courseName = intent.getStringExtra("courseName")
         classId = intent.getStringExtra("classId")
         enterType = intent.getStringExtra("enterType")
-        teacherPhone = intent.getStringExtra("teacherPhone")
+        //teacherPhone = intent.getStringExtra("teacherPhone")
         initView()
         this.supportFragmentManager
             .beginTransaction()

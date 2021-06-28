@@ -1,5 +1,6 @@
 package com.example.daoyun.fragment
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -10,12 +11,25 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.daoyun.Course
 import com.example.daoyun.CreateClassActivity
 import com.example.daoyun.R
 import com.example.daoyun.databinding.FragmentMainBinding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.*
+import java.util.stream.Collectors.toCollection
+import kotlin.concurrent.thread
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -37,6 +51,11 @@ class MainFragment : Fragment() {
     private var myJoinView: View? = null
     private var myCreateFragment: MyCreateFragment = MyCreateFragment()
     private var myJoinFragment: MyJoinFragment = MyJoinFragment()
+    private lateinit var jwtToken:String
+    private var debugmsg:String?=null
+    private var courseList: MutableList <Course> = ArrayList<Course>()
+    private lateinit var anytst:Any
+    private var qwer:Int=-1
 
     private lateinit var binding: FragmentMainBinding
 
@@ -61,6 +80,8 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?){
         super.onActivityCreated(savedInstanceState)
         val activity = activity as AppCompatActivity?
+        val userData= activity?.getSharedPreferences("userData", Context.MODE_PRIVATE)
+        jwtToken= userData?.getString("jwtToken", "error").toString()
 
         myCreateView = activity!!.findViewById(R.id.view_mycreate)
         myJoinView = activity!!.findViewById(R.id.view_myjoin)
@@ -125,16 +146,21 @@ class MainFragment : Fragment() {
                     val editText = EditText(context)
                     val builder =
                         AlertDialog.Builder(context!!)
-                            .setTitle("请输入七位班课号")
+                            .setTitle("请输入班课号")
                             .setView(editText)
                     builder.setPositiveButton(
                         "确定"
-                    ) { dialog, which ->
+                    ) { _, _ ->
                         val classStr = editText.text.toString()
                         joinClass(classStr)
                     }
                     builder.setNegativeButton("取消", null)
                     builder.show()
+                }
+                R.id.refresh->{
+                    getCourses()
+                    //Toast.makeText(activity,"empty\n$debugmsg\nparis\n$anytst\ncourselist\n$courseList",Toast.LENGTH_SHORT).show()
+
                 }
             }
             true
@@ -142,6 +168,44 @@ class MainFragment : Fragment() {
         popupMenu.setOnDismissListener {
             // 控件消失时的事件
         }
+    }
+
+    private fun getCourses(){
+        thread {
+            try {
+                val url = HttpUrl.Builder()
+                    .scheme("https")
+                    .host("gcsj.lidotcircle.ltd")
+                    .addPathSegment("apis")
+                    .addPathSegment("course")
+                    .addPathSegment("page")
+                    .addQueryParameter("role", "teacher")
+                    .build()
+                val client= OkHttpClient()
+                val request= Request.Builder()
+                    .url(url)
+                    .header("Authorization",jwtToken)
+                    .get()
+                    .build()
+                val response=client.newCall(request).execute()
+                val responseData=response.body?.string()
+                debugmsg=responseData.toString()
+                anytst=JSONObject(responseData)?.getJSONArray("pairs")
+
+                parseJSONWithGSON(anytst.toString())
+            }catch (e: Exception){
+                Log.e("TAG", Log.getStackTraceString(e))
+            }
+        }.join()
+    }
+
+    private fun parseJSONWithGSON(jsonData:String){
+        val gson= Gson()
+        val typeOf=object: TypeToken<List<Course>>() {}.type
+        val csList=gson.fromJson<MutableList<Course>>(jsonData,typeOf)
+        qwer=csList.size
+
+        courseList=csList
     }
 
     private fun joinClass(classStr: String) {

@@ -59,16 +59,16 @@ class CourseAdapter : ArrayAdapter<Course?> {
             view = convertView
             viewHolder = view.tag as ViewHolder
         }
-        if (course!=null&&course?.getImgFilePath().equals("")) {
-            viewHolder.courseImage!!.setImageResource(course.getImageId())
-            viewHolder.courseName?.text = course.getCourseName()
-            viewHolder.teacherName?.text = course.getTeacherName()
-            viewHolder.className?.text = course.getClassName()
-        } else if (course!=null&&course.getImageId() === -1) {
-            viewHolder.courseImage!!.setImageBitmap(BitmapFactory.decodeFile(course.getImgFilePath()))
-            viewHolder.courseName?.text = course.getCourseName()
-            viewHolder.teacherName?.text = course.getTeacherName()
-            viewHolder.className?.text = course.getClassName()
+        if (course!=null&& course?.imgFilePath == "") {
+            viewHolder.courseImage!!.setImageResource(course.imageId)
+            viewHolder.courseName?.text = course.courseName
+            viewHolder.teacherName?.text = course.teacher.userName
+            viewHolder.className?.text = course.className
+        } else if (course!=null&&course.imageId === -1) {
+            viewHolder.courseImage!!.setImageBitmap(BitmapFactory.decodeFile(course.imgFilePath))
+            viewHolder.courseName?.text = course.courseName
+            viewHolder.teacherName?.text = course.teacher.userName
+            viewHolder.className?.text = course.className
         }
         if (flag == 1) {
             viewHolder.signInImg!!.setOnClickListener {

@@ -28,9 +28,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var findTV: TextView? = null
     private var meTV: TextView? = null
     private var mMainFragment = MainFragment() //首页
-
     private var mFindFragment = FindFragment() //发现
-
     private var mMeFragment = MeFragment() //我的
 
     var userName: String? = null
@@ -58,8 +56,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .add(R.id.container_content, mMeFragment)
             .hide(mMeFragment)
             .commit()
-        val userData=getSharedPreferences("userData",Context.MODE_PRIVATE)
-        val toke=userData.getString("token","error")
+/*        val userData=getSharedPreferences("userData",Context.MODE_PRIVATE)
+        val toke=userData.getString("token","error")*/
         //Toast.makeText(this,toke,Toast.LENGTH_LONG).show()
 
     }

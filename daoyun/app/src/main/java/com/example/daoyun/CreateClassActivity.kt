@@ -37,7 +37,6 @@ class CreateClassActivity : AppCompatActivity() {
     private var gradeClassET: EditText? = null
     private var classIntroductionET: EditText? = null
     private var createClassBtn: Button? = null
-    private var backBtn: Button? = null
     private val IMAGE_SELECT = 1
     private val IMAGE_CUT = 2
     private var cropFile: File? = null
@@ -46,7 +45,6 @@ class CreateClassActivity : AppCompatActivity() {
     private var selectedFaculty: String? = null
     private var courseExId:String?=null
     private lateinit var jwtToken:String
-    private var debugmsg:String?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +57,7 @@ class CreateClassActivity : AppCompatActivity() {
         gradeClassET = findViewById(R.id.grade_class_Et)
         classIntroductionET = findViewById(R.id.class_introduction_Et)
         createClassBtn = findViewById(R.id.create_class_btn)
-        backBtn = findViewById(R.id.toolbar_left_btn)
+        val backBtn:Button = findViewById(R.id.toolbar_left_btn)
         backBtn?.setOnClickListener(View.OnClickListener { finish() })
         classIconIV = findViewById(R.id.class_icon_Iv)
         val userData=getSharedPreferences("userData", Context.MODE_PRIVATE)
@@ -158,7 +156,7 @@ class CreateClassActivity : AppCompatActivity() {
                 addClass(classNameET!!.text.toString())
                 //Toast.makeText(this,"$jwtToken\n$tst\n$debugmsg",Toast.LENGTH_LONG).show()
                 Toast.makeText(this,"创建成功",Toast.LENGTH_LONG).show()
-                startActivity(Intent(this, GenerateClass::class.java))
+                //startActivity(Intent(this, GenerateClass::class.java))
                 finish()
             }
         })
@@ -178,12 +176,16 @@ class CreateClassActivity : AppCompatActivity() {
                     .build()
                 val response=client.newCall(request).execute()
                 val responseData=response.body?.string()
-                debugmsg=responseData.toString()
                 courseExId = JSONObject(responseData).getString("courseExId")
                 //save
                 val userData =getSharedPreferences("userData", Context.MODE_PRIVATE)
                 val editor = userData.edit()
                 editor.putString("courseExId",courseExId)
+                editor.putString("class",classNameET?.text.toString())
+                editor.putString("school",schoolTV?.text.toString())
+                editor.putString("grade",gradeClassET?.text.toString())
+                editor.putString("term",termTV?.text.toString())
+                editor.putString("classIntroduction",classIntroductionET?.text.toString())
                 editor.commit()
             }catch (e: Exception){
                 Log.e("TAG", Log.getStackTraceString(e))

@@ -59,8 +59,9 @@ class RegisterActivity : AppCompatActivity() {
             }
             else{
                 register(binding.registerUsername.text.toString(),binding.etLoginUsername.text.toString(),binding.etRegVericode.text.toString(),binding.etLoginPwd.text.toString(),messageCode)
-                Toast.makeText(this, "注册成功！", Toast.LENGTH_SHORT).show();
-                Intent(this,LoginActivity::class.java)
+                Toast.makeText(this, "注册成功！", Toast.LENGTH_SHORT).show()
+                finish()
+                //Intent(this,LoginActivity::class.java)
             }
         }
     }
